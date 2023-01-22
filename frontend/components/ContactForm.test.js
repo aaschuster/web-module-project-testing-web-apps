@@ -78,23 +78,53 @@ test('renders "lastName is a required field" if an last name is not entered and 
 test('renders all firstName, lastName and email text when submitted. Does NOT render message if message is not submitted.', async () => {
     render(<ContactForm />);
 
-    const fNameInput = screen.getByLabelText(/first name/i);
-    const lNameInput = screen.getByLabelText(/last name/i);
-    const emailInput = screen.getByLabelText(/email/i);
-    const submitBtn = screen.getByText(/submit/i);
+    const fNameInput = screen.getByLabelText(/first name*/i);
+    const lNameInput = screen.getByLabelText(/last name*/i);
+    const emailInput = screen.getByLabelText(/email*/i);
+    const submitBtn = screen.getByRole("button");
 
     userEvent.type(fNameInput, "Ronald");
     userEvent.type(lNameInput, "Toomer");
     userEvent.type(emailInput, "rtoomer@arrowdynamics.com");
     userEvent.click(submitBtn);
 
-    const fNameDisplay = screen.getByText(/first name: ronald/i);
-    const lNameDisplay = screen.getByText(/last name: toomer/i);
-    const emailDisplay = screen.getByText(/email: rtoomer@arrowdynamics.com/i);
+    await waitFor(() => {
+        const fNameDisplay = screen.queryByText("Ronald");
+        const lNameDisplay = screen.queryByText("Toomer");
+        const emailDisplay = screen.queryByText(/rtoomer@arrowdynamics.com/i);
+        const messageDisplay = screen.queryByTestId("messageDisplay");
 
-    expect(/message/i).toBeInvalid();
+        expect(fNameDisplay).toBeInTheDocument();
+        expect(lNameDisplay).toBeInTheDocument();
+        expect(emailDisplay).toBeInTheDocument();
+        expect(messageDisplay).not.toBeInTheDocument();
+    })
 });
 
 test('renders all fields text when all fields are submitted.', async () => {
+    render(<ContactForm />);
 
+    const fNameInput = screen.getByLabelText(/first name*/i);
+    const lNameInput = screen.getByLabelText(/last name*/i);
+    const emailInput = screen.getByLabelText(/email*/i);
+    const messageInput = screen.getByLabelText(/message/i);
+    const submitBtn = screen.getByRole("button");
+
+    userEvent.type(fNameInput, "Ronald");
+    userEvent.type(lNameInput, "Toomer");
+    userEvent.type(emailInput, "rtoomer@arrowdynamics.com");
+    userEvent.type(messageInput, "Do you even know what year it is?");
+    userEvent.click(submitBtn);
+
+    await waitFor(() => {
+        const fNameDisplay = screen.queryByText("Ronald");
+        const lNameDisplay = screen.queryByText("Toomer");
+        const emailDisplay = screen.queryByText(/rtoomer@arrowdynamics.com/i);
+        const messageDisplay = screen.queryByTestId("messageDisplay");
+
+        expect(fNameDisplay).toBeInTheDocument();
+        expect(lNameDisplay).toBeInTheDocument();
+        expect(emailDisplay).toBeInTheDocument();
+        expect(messageDisplay).toBeInTheDocument();
+    });
 });
